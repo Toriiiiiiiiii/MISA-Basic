@@ -30,7 +30,7 @@ sbmk "void putch(u8t ch)"
 ##          u8t ch :: Char to print out
 ##
 ##      REGISTERS DESTROYED:
-##          t0, t1
+##          t0, t1, ea
 ##
 ##  Outputs a character to the display.
 putch:
@@ -70,6 +70,14 @@ putch:
 
 sbmk "void puts(char *s)"
 ## FUNCTION :: puts
+##      RETURN TYPE = VOID
+##      PARAMETERS:
+##          u8t *str :: Pointer to the string
+##
+##      REGISTERS DESTROYED:
+##          ea, a0, t0
+##
+## Outputs a string to the display using putch
 puts:
     cea a0, 0, 1
     mov t0, 0
@@ -95,6 +103,15 @@ puts:
 
 
 sbmk "void draw_vmem(void)"
+## FUNCTION :: draw_vmem
+##      RETURN TYPE = VOID
+##      PARAMETERS:
+##          void
+##
+##      REGISTERS DESTROYED:
+##          t0, t1, t2, t3, ea, a0, a1, a2, a3
+##
+## Renders the text display to the screen
 draw_vmem:
     mov t0, 0
     mov t1, 0
@@ -206,11 +223,13 @@ wait_line:
     jfs .no_enter
 
     mov a0, 0x0a
+    psh ea
     psh a0
     vpsh t0..t4
     cal putch
     vpop t0..t4
     pop a0
+    pop ea
 
     jtr .done
 
@@ -222,11 +241,13 @@ wait_line:
     dec t0
     ste u8t, t0, 0
 
+    psh ea
     psh a0
     vpsh t0..t4
     cal putch
     vpop t0..t4
     pop a0
+    pop ea
 
 .after_special:
     psh a0              # Ignore other special keys
@@ -237,17 +258,13 @@ wait_line:
 
     ste u8t, t0, a0
 
-    psh a0
-    mov a0, t0
-    syscall SYS_PRINT_LINE_INT
-    pop a0
-    syscall SYS_PRINT_LINE_INT
-
+    psh ea
     psh a0
     vpsh t0..t4
     cal putch
     vpop t0..t4
     pop a0
+    pop ea
 
     inc t0
     jmp .wait
