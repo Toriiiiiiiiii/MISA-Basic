@@ -215,7 +215,20 @@ wait_line:
 
 .not_nine:
     cmp eq, a0, '0'
+    jfs .not_zero
     mov a0, ')'
+    jmp .no_shift
+
+.not_zero:
+    cmp eq, a0, '1'
+    jfs .not_one
+    mov a0, '!'
+    jmp .no_shift
+
+.not_one:
+    cmp eq, a0, '2'
+    jfs .no_shift
+    mov a0, '"'
     jmp .no_shift
 
 .no_shift:
@@ -276,23 +289,28 @@ wait_line:
 
 #----------------------------------------------------------------------------
 bmk "Processes"
+
+sbmk "_start"
 _start:
     exit
 
 
+sbmk "_update"
 _update:
     cal wait_line
 
     mov a0, inp
-    syscall SYS_PRINT_LINE_STRING
+    cal puts
     exit
 
 
+sbmk "_draw"
 _draw:
     cal draw_vmem
     exit
 
 
+sbmk "_input"
 _input:
     exit
 
@@ -634,6 +652,8 @@ c40:
     emb u8t 0xff, 0x00, 0xff, 0x00
     emb u8t 0x00, 0xff, 0x00, 0x00
     emb u8t 0x00, 0x00, 0x00, 0x00
+
+sbmk "Alphabet"
 c41:
     emb u16t 4, 8
     emb u8t 0x00, 0xff, 0x00, 0x00
@@ -766,11 +786,11 @@ c4d:
     emb u8t 0x00, 0x00, 0x00, 0x00
 c4e:
     emb u16t 4, 8
+    emb u8t 0xff, 0xff, 0x00, 0x00
     emb u8t 0xff, 0x00, 0xff, 0x00
     emb u8t 0xff, 0x00, 0xff, 0x00
     emb u8t 0xff, 0x00, 0xff, 0x00
     emb u8t 0xff, 0x00, 0xff, 0x00
-    emb u8t 0xff, 0xff, 0xff, 0x00
     emb u8t 0xff, 0x00, 0xff, 0x00
     emb u8t 0xff, 0x00, 0xff, 0x00
     emb u8t 0x00, 0x00, 0x00, 0x00
